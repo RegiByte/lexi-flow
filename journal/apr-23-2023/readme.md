@@ -38,3 +38,6 @@ I'm planning to add more features and make it more customizable in the future.
 This is the just the basic shell.
 
 ![How it started](./initial-structure.png)
+
+
+[Next](../apr-24-2023/readme.md)

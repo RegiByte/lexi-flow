@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
-  $createParagraphNode, $createTextNode,
+  $createParagraphNode,
+  $createTextNode,
   $getSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
@@ -12,7 +13,7 @@ import {
   NodeKey,
   REDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
-  UNDO_COMMAND
+  UNDO_COMMAND,
 } from "lexical";
 import {
   $findMatchingParent,
@@ -32,7 +33,14 @@ import { sanitizeUrl } from "../../helpers/url";
 import classNames from "classnames";
 import { prefixClassNames } from "../../helpers/strings";
 import { EditorTheme } from "../../components/Editor/theme";
-import { list } from "postcss";
+import * as Popover from "@radix-ui/react-popover";
+import { ColorListDropdown } from "../../components/ColorListDropdown";
+import { defaultColorItems } from "../../defaults/colors";
+import { ColorPicker } from "../../components/icons/ColorPicker";
+import { CheckIcon, ChevronRightIcon, DotFilledIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { CgBrush, CgRedo, CgUndo, SlActionRedo, SlActionUndo } from "react-icons/all";
+import { ToolbarButton } from "./ToolbarButton";
 
 const rootTypeToRootName = {
   root: "Root",
@@ -279,7 +287,10 @@ const ToolbarPlugin = () => {
     activeEditor.dispatchCommand(REDO_COMMAND, undefined);
   }, []);
 
-  console.log(theme)
+  const [bookmarksChecked, setBookmarksChecked] = React.useState(true);
+  const [urlsChecked, setUrlsChecked] = React.useState(false);
+  const [person, setPerson] = React.useState("pedro");
+
   const toolbarClassNames = classNames(
     prefixClassNames("toolbar-container", theme.prefix!),
     theme?.toolbar?.container ?? "",
@@ -287,15 +298,21 @@ const ToolbarPlugin = () => {
 
   return (
     <div className={toolbarClassNames}>
-      <button onClick={undo} className="disabled:bg-green-200 bg-blue-300 rounded px-2 py-1" disabled={!canUndo}>
-        UNDO
-      </button>
-      <button onClick={redo} className="disabled:bg-green-200 bg-blue-300 rounded px-2 py-1" disabled={!canRedo}>
-        REDO
-      </button>
-      <button onClick={clearFormatting} className="disabled:bg-green-200 bg-blue-300 rounded px-2 py-1">
-        Clear formatting
-      </button>
+      <ToolbarButton onClick={undo} title="Undo" className={"disabled:bg-slate-300"} disabled={!canUndo}>
+        <CgUndo />
+      </ToolbarButton>
+      <ToolbarButton onClick={redo} title="Redo" className={"disabled:bg-neutral-200"} disabled={!canRedo}>
+        <CgRedo />
+      </ToolbarButton>
+      <ToolbarButton title="Clear Formatting" onClick={clearFormatting} className="disabled:bg-neutral-200 bg-blue-300 rounded px-2 py-1">
+        <CgBrush/>
+      </ToolbarButton>
+      <ColorListDropdown
+        colors={defaultColorItems}
+        onSelect={(color) => onFontColorSelect(color)}
+        label={"Text Color"}
+        icon={<ColorPicker className="h-5 w-5" />}
+      />
     </div>
   );
 };

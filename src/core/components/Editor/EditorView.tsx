@@ -15,30 +15,52 @@ import classNames from "classnames";
 import { prefixClassNames } from "../../helpers/strings";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { useSharedHistoryContext } from "../../context/SharedHistory";
+import useViewportWidth from "./hooks/useViewportWidth";
+import { LocalDocumentPlugin } from "../../plugins/LocalDocument/LocalDocumentPlugin";
+import FloatingToolbarPlugin from "../../plugins/FloatingToolbar/FloatingToolbar";
 
 const EditorView: React.FC<{ classPrefix?: string }> = (props) => {
   const { classPrefix = "" } = props;
-  const {historyState} = useSharedHistoryContext()
+  const { historyState } = useSharedHistoryContext();
   const [editor, context] = useLexicalComposerContext();
   const theme = context.getTheme();
+  const scrollerClasses = classNames(prefixClassNames("editor-scroller", classPrefix), theme?.container?.scroller);
   const viewClasses = classNames(prefixClassNames("editor-view", classPrefix), theme?.container?.view);
+  const inputClasses = classNames(prefixClassNames("editor-input", classPrefix), theme?.container?.input);
+  const [viewAnchorElement, setViewAnchorElement] = React.useState<HTMLDivElement | null>(null);
+  const [isSmallViewportWidth, viewportWidth] = useViewportWidth();
+
+  const onViewRef = (_viewAnchorElement: HTMLDivElement) => {
+    if (_viewAnchorElement !== null) {
+      setViewAnchorElement(_viewAnchorElement);
+    }
+  };
+
 
   return (
     <>
       <ToolbarPlugin />
-      <div className={viewClasses}>
-        <RichTextPlugin
-          contentEditable={<ContentEditable className={theme?.container?.input} spellCheck={false} />}
-          placeholder={Placeholder}
-          ErrorBoundary={LexicalErrorBoundary}
-        />
-        <HistoryPlugin externalHistoryState={historyState}/>
-        <AutoFocusPlugin defaultSelection="rootStart" />
-        <ListPlugin />
-        <LinkPlugin />
-        <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
-        <CodeHighlightPlugin />
-      </div>
+      <RichTextPlugin
+        contentEditable={
+          <div className={scrollerClasses}>
+            <div className={viewClasses} ref={onViewRef}>
+              <ContentEditable className={inputClasses} spellCheck={false} />
+            </div>
+          </div>
+        }
+        placeholder={Placeholder}
+        ErrorBoundary={LexicalErrorBoundary}
+      />
+      {viewAnchorElement && (
+        <FloatingToolbarPlugin anchorElem={viewAnchorElement} />
+      )}
+      <LocalDocumentPlugin documentId="first" prefix={"@lexiflow"}/>
+      <HistoryPlugin externalHistoryState={historyState} />
+      <AutoFocusPlugin defaultSelection="rootStart" />
+      <ListPlugin />
+      <LinkPlugin />
+      <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+      <CodeHighlightPlugin />
     </>
   );
 };
