@@ -11,6 +11,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { mergeRegister } from "@lexical/utils";
 import {
   $getSelection,
+  $isParagraphNode,
   $isRangeSelection,
   $isTextNode,
   COMMAND_PRIORITY_LOW,
@@ -18,24 +19,27 @@ import {
   LexicalEditor,
   SELECTION_CHANGE_COMMAND,
 } from "lexical";
-import { useCallback, useEffect, useRef, useState } from "react";
 import * as React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getDOMRangeRect } from "../../helpers/getDOMRangeRect";
 import { setFloatingElemPosition } from "../../helpers/setFloatingElemPosition";
 import { getSelectedNode } from "../../helpers/nodes";
 import classNames from "classnames";
 import {
-  BsCode, BsLink,
+  BsCode,
+  BsLink,
   BsSubscript,
   BsSuperscript,
   FaBold,
   FaItalic,
   FaStrikethrough,
-  FaSubscript,
-  FaSuperscript,
-  FaUnderline
+  FaUnderline,
 } from "react-icons/all";
+import { $isHeadingNode } from "@lexical/rich-text";
+import * as Toolbar from "@radix-ui/react-toolbar";
+
+type TextFormattingState = "bold" | "italic" | "underline" | "superscript" | "subscript" | "strikethrough" | "code";
 
 function TextFormatFloatingToolbar({
   editor,
@@ -178,86 +182,109 @@ function TextFormatFloatingToolbar({
     );
   }, [editor, updateTextFormatFloatingToolbar]);
 
+  const textFormattingStates = useMemo<TextFormattingState[]>(() => {
+    return [
+      isBold && "bold",
+      isItalic && "italic",
+      isUnderline && "underline",
+      isSuperscript && "superscript",
+      isSubscript && "subscript",
+      isStrikethrough && "strikethrough",
+      isCode && "code",
+    ].filter(Boolean) as TextFormattingState[];
+  }, [editor, isBold, isItalic, isUnderline, isCode, isStrikethrough, isSubscript, isSuperscript]);
+
+  const handleChangeFormattingState = useCallback(
+    (value: string[]) => {
+      const newFormattingStates = value as TextFormattingState[];
+      const formattingStatesToRemove = textFormattingStates.filter((state) => !newFormattingStates.includes(state));
+      const formattingStatesToAdd = newFormattingStates.filter((state) => !textFormattingStates.includes(state));
+
+      formattingStatesToRemove.forEach((state) => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, state);
+      });
+
+      formattingStatesToAdd.forEach((state) => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, state);
+      });
+    },
+    [textFormattingStates],
+  );
+
   const itemClassName = classNames(
     `border-0 inline-flex items-center justify-center bg-white rounded-lg relative
-    h-[32px] w-[32px] p-2 cursor-pointer align-middle hover:bg-gray-600/300`,
+    h-[32px] w-[32px] p-2 cursor-pointer align-middle hover:bg-gray-600/300 data-[state=on]:bg-gray-700/30`,
     {},
   );
   return (
-    <div
+    <Toolbar.Root
       ref={popupCharStylesEditorRef}
-      className={`floating-text-format-popup flex bg-white px-1 py-1 items-center gap-1 absolute
+      className={`floating-text-format-popup flex items-center bg-white px-1 py-1 gap-1 absolute
        z-10 opacity-0 shadow-md rounded-md transition-opacity will-change-transform bg-slate-200`}>
       {editor.isEditable() && !editor.isComposing() && (
         <>
-          <button
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-            }}
-            className={classNames(itemClassName, { "bg-gray-700/30": isBold })}
-            aria-label="Format text as bold">
-            <FaBold />
-          </button>
-          <button
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-            }}
-            className={classNames(itemClassName, { "bg-gray-700/30": isItalic })}
-            aria-label="Format text as italics">
-            <FaItalic />
-          </button>
-          <button
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-            }}
-            className={classNames(itemClassName, { "bg-gray-700/30": isUnderline })}
-            aria-label="Format text to underlined">
-            <FaUnderline />
-          </button>
-          <button
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
-            }}
-            className={classNames(itemClassName, { "bg-gray-700/30": isStrikethrough })}
-            aria-label="Format text with a strikethrough">
-            <FaStrikethrough />
-          </button>
-          <button
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "subscript");
-            }}
-            className={classNames(itemClassName, { "bg-gray-700/30": isSubscript })}
-            title="Subscript"
-            aria-label="Format Subscript">
-            <BsSubscript className="w-6 h-6" />
-          </button>
-          <button
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "superscript");
-            }}
-            className={classNames(itemClassName, { "bg-gray-700/30": isSuperscript })}
-            title="Superscript"
-            aria-label="Format Superscript">
-            <BsSuperscript className="w-6 h-6" />
-          </button>
-          <button
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
-            }}
-            className={classNames(itemClassName, { "bg-gray-700/30": isCode })}
-            aria-label="Insert code block">
-            <i className="format code" />
-            <BsCode className="w-6 h-6" />
-          </button>
-          <button
+          <Toolbar.ToggleGroup
+            onValueChange={handleChangeFormattingState}
+            value={textFormattingStates}
+            type={"multiple"}
+            className="flex items-center gap-1.5">
+            <Toolbar.ToggleItem
+              value={"bold"}
+              className={classNames(itemClassName, { "bg-gray-700/30": isBold })}
+              aria-label="Format text as bold">
+              <FaBold />
+            </Toolbar.ToggleItem>
+            <Toolbar.ToggleItem
+              value={"italic"}
+              className={classNames(itemClassName, { "bg-gray-700/30": isItalic })}
+              aria-label="Format text as italics">
+              <FaItalic />
+            </Toolbar.ToggleItem>
+            <Toolbar.ToggleItem
+              value={"underline"}
+              className={classNames(itemClassName, { "bg-gray-700/30": isUnderline })}
+              aria-label="Format text to underlined">
+              <FaUnderline />
+            </Toolbar.ToggleItem>
+            <Toolbar.ToggleItem
+              value={"strikethrough"}
+              className={classNames(itemClassName, { "bg-gray-700/30": isStrikethrough })}
+              aria-label="Format text with a strikethrough">
+              <FaStrikethrough />
+            </Toolbar.ToggleItem>
+            <Toolbar.ToggleItem
+              value={"subscript"}
+              className={classNames(itemClassName, { "bg-gray-700/30": isSubscript })}
+              title="Subscript"
+              aria-label="Format Subscript">
+              <BsSubscript className="w-6 h-6" />
+            </Toolbar.ToggleItem>
+            <Toolbar.ToggleItem
+              value={"superscript"}
+              className={classNames(itemClassName, { "bg-gray-700/30": isSuperscript })}
+              title="Superscript"
+              aria-label="Format Superscript">
+              <BsSuperscript className="w-6 h-6" />
+            </Toolbar.ToggleItem>
+            <Toolbar.ToggleItem
+              value={"code"}
+              defaultChecked={isCode}
+              className={classNames(itemClassName, { "bg-gray-700/30": isCode })}
+              aria-label="Insert code block">
+              <i className="format code" />
+              <BsCode className="w-6 h-6" />
+            </Toolbar.ToggleItem>
+          </Toolbar.ToggleGroup>
+          <Toolbar.Separator className="w-[1px] h-[20px] bg-neutral-300 mx-[5px]" />
+          <Toolbar.Button
             onClick={insertLink}
             className={classNames(itemClassName, { "bg-gray-700/30": isLink })}
             aria-label="Insert link">
-            <BsLink className="w-6 h-6"/>
-          </button>
+            <BsLink className="w-6 h-6" />
+          </Toolbar.Button>
         </>
       )}
-    </div>
+    </Toolbar.Root>
   );
 }
 
@@ -272,7 +299,7 @@ function useFloatingTextFormatToolbar(editor: LexicalEditor, anchorElem: HTMLEle
   const [isSuperscript, setIsSuperscript] = useState(false);
   const [isCode, setIsCode] = useState(false);
 
-  const updatePopup = useCallback(() => {
+  const updateFloatingToolbar = useCallback(() => {
     editor.getEditorState().read(() => {
       // Should not to pop up the floating toolbar when using IME input
       if (editor.isComposing()) {
@@ -314,7 +341,7 @@ function useFloatingTextFormatToolbar(editor: LexicalEditor, anchorElem: HTMLEle
       }
 
       if (!$isCodeHighlightNode(selection.anchor.getNode()) && selection.getTextContent() !== "") {
-        setIsText($isTextNode(node));
+        setIsText($isTextNode(node) || $isParagraphNode(node) || $isHeadingNode(node));
       } else {
         setIsText(false);
       }
@@ -328,16 +355,16 @@ function useFloatingTextFormatToolbar(editor: LexicalEditor, anchorElem: HTMLEle
   }, [editor]);
 
   useEffect(() => {
-    document.addEventListener("selectionchange", updatePopup);
+    document.addEventListener("selectionchange", updateFloatingToolbar);
     return () => {
-      document.removeEventListener("selectionchange", updatePopup);
+      document.removeEventListener("selectionchange", updateFloatingToolbar);
     };
-  }, [updatePopup]);
+  }, [updateFloatingToolbar]);
 
   useEffect(() => {
     return mergeRegister(
       editor.registerUpdateListener(() => {
-        updatePopup();
+        updateFloatingToolbar();
       }),
       editor.registerRootListener(() => {
         if (editor.getRootElement() === null) {
@@ -345,7 +372,7 @@ function useFloatingTextFormatToolbar(editor: LexicalEditor, anchorElem: HTMLEle
         }
       }),
     );
-  }, [editor, updatePopup]);
+  }, [editor, updateFloatingToolbar]);
 
   if (!isText || isLink) {
     return null;

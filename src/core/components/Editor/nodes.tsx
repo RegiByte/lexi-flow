@@ -1,4 +1,4 @@
-import { HeadingNode, QuoteNode } from "@lexical/rich-text";
+import { HeadingNode, QuoteNode, $isHeadingNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ListItemNode, ListNode } from "@lexical/list";
 import {AutoLinkNode, LinkNode} from "@lexical/link";

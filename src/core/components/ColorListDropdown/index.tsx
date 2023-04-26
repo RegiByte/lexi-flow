@@ -20,12 +20,9 @@ interface ColorListProps {
 
 export const ColorListDropdown: React.FC<ColorListProps> = (props) => {
   const { colors, onSelect, label = "Choose Text Color", icon } = props;
-  const [bookmarksChecked, setBookmarksChecked] = React.useState(true);
-  const [urlsChecked, setUrlsChecked] = React.useState(false);
-  const [person, setPerson] = React.useState("pedro");
 
   return (
-    <DropdownMenu.Root>
+    <DropdownMenu.Root modal={false}>
       <DropdownMenu.Trigger asChild>
         <button
           title={label}
@@ -39,13 +36,16 @@ export const ColorListDropdown: React.FC<ColorListProps> = (props) => {
         <DropdownMenu.Content
           className={`min-w-[200px] space-y-1.5 p-4 bg-white rounded-md p-[5px] shadow-md will-change-[opacity,transform] 
           data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade 
-          data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade`}
+          data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade z-10`}
           sideOffset={5}>
           {colors.map((color) => (
             <DropdownMenu.Item
               key={color.value}
-              style={{ backgroundColor: color.value}}
-              onClick={() => onSelect(color.value)}
+              style={{ backgroundColor: color.value }}
+              onClick={(e) => {
+                e.preventDefault();
+                onSelect(color.value);
+              }}
               className={`group text-[13px] font-semibold leading-none text-neutral-100 rounded-[3px]
                flex items-center h-[30px] px-[5px] relative pl-[25px] select-none outline-6 data-highlighted:h-[33px]
                 data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:text-white`}>
