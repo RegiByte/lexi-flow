@@ -24,7 +24,7 @@ export const editorTheme: EditorTheme = {
     editor: "flex flex-col w-full h-full overflow-hidden border border-black p-2",
     shell: "flex flex-col flex-1 border border-sky-300 p-2",
 	  scroller: `flex flex-col flex-1 overflow-hidden border border-purple-500`,
-    view: "max-h-full flex-1 overflow-auto max-h-[200px] flex flex-col border border-amber-300 pl-4 pr-2 py-2",
+    view: "max-h-full flex-1 overflow-auto max-h-[200px] flex flex-col border border-amber-300 pl-4 pr-2 py-2 relative",
     input: "resize-none outline-none caret-black px-2 py-1 border border-green-300",
   },
   placeholder: {
@@ -56,4 +56,5 @@ export const editorTheme: EditorTheme = {
     ul: "list-disc list-inside pl-4",
     listitem: "text-neutral-500 marker:text-neutral-500",
   },
+  link: "text-blue-500 hover:underline",
 };

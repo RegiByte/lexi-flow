@@ -23,7 +23,7 @@ import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getDOMRangeRect } from "../../helpers/getDOMRangeRect";
-import { setFloatingElemPosition } from "../../helpers/setFloatingElemPosition";
+import { setFloatingElementPosition } from "../../helpers/setFloatingElementPosition";
 import { getSelectedNode } from "../../helpers/nodes";
 import classNames from "classnames";
 import {
@@ -134,7 +134,7 @@ function TextFormatFloatingToolbar({
     ) {
       const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
 
-      setFloatingElemPosition(rangeRect, popupCharStylesEditorElem, anchorElem);
+      setFloatingElementPosition(rangeRect, popupCharStylesEditorElem, anchorElem);
     }
   }, [editor, anchorElem]);
 

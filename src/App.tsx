@@ -15,7 +15,7 @@ const theme = {
 
 }
 
-function onError(error) {
+function onError(error: any) {
 	console.error(error);
 }
 

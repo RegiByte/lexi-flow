@@ -111,3 +111,6 @@ Those are reaaaally far way but I still want to add them:
 - Plugin primitives for devs to build their own plugins using our primitives (like dialogs, dropdowns, cursor-positioned
   elements, command buttons and so on...)
 - UI components library for text editors (fine, I'll do it myself. Maybe I can hire a designer?)
+
+
+[Next](../apr-26-2023/readme.md)
