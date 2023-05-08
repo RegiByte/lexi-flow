@@ -152,13 +152,20 @@ const FloatingLinkEditor: React.FC<{
   return (
     <div
       ref={editorRef}
-      className="link-editor flex items-center bg-white px-1 items-center gap-1 absolute
-       z-10 opacity-0 shadow-md rounded-md transition-opacity will-change-transform bg-slate-200">
+      style={{
+        position: "absolute",
+        opacity: 0,
+        top: 0,
+        left: 0,
+        transform: "translate(-100%, -100%)",
+      }}
+      className="link-editor flex items-center items-center gap-2
+       z-10 shadow-md rounded-md transition-opacity will-change-transform rounded">
       {!isLink ? null : isEditMode ? (
-        <div className="link-editor-input-area flex items-center">
+        <div className="link-editor-input-area px-2 flex items-center gap-2 bg-gradient-to-b h-[44px] from-[rgba(49,49,47,.99)] to-[#262625] rounded">
           <input
             type="text"
-            className={classNames(inputElementClass, "inline-block border rounded bg-neutral-200 px-1")}
+            className={classNames(inputElementClass, "inline-block border min-w-[250px] rounded bg-neutral-200 px-1 bg-gradient-to-b h-[44px] from-[rgba(49,49,47,.99)] to-[#262625] outline-none text-blue-500")}
             placeholder="Type your link here..."
             value={editedLinkUrl}
             onChange={(event) => {
@@ -184,13 +191,13 @@ const FloatingLinkEditor: React.FC<{
               tabIndex={0}
               onClick={handleLinkSubmission}
               onMouseDown={(event) => event.preventDefault()}
-              className="link-cancel  bg-green-300 rounded px-2 py-1">
+              className="link-cancel  bg-medium-green rounded px-2 py-1">
               Confirm
             </div>
           </div>
         </div>
       ) : (
-        <div className="link-view flex items-center gap-2">
+        <div className="link-view flex items-center gap-2 bg-gradient-to-b h-[44px] from-[rgba(49,49,47,.99)] to-[#262625] rounded">
           <div className="link-scroller min-w-[200px] max-w-[250px] h-full overflow-x-auto py-2">
             <a
               href={linkUrl}

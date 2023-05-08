@@ -22,6 +22,8 @@ import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
 import { autoLinkMatchers } from "../../constants/links";
 import FloatingLinkEditorPlugin from "../../plugins/FloatingLinkEditor/FloatingLinkEditor";
 import DraggableBlockPlugin from "../../plugins/DraggableBlock/DraggableBlock";
+import ComponentPickerMenuPlugin from "../../plugins/ComponentPickerPlugin/ComponentPickerPlugin";
+import { PlaceholderPlugin } from "../../plugins/Placeholder/Placeholder";
 
 const EditorView: React.FC<{ classPrefix?: string }> = (props) => {
   const { classPrefix = "" } = props;
@@ -59,16 +61,18 @@ const EditorView: React.FC<{ classPrefix?: string }> = (props) => {
           <FloatingToolbarPlugin anchorElem={viewAnchorElement} />
           <FloatingLinkEditorPlugin anchorElem={viewAnchorElement} />
           <DraggableBlockPlugin anchorElem={viewAnchorElement} />
+          <PlaceholderPlugin mode={"empty-block"} anchorElem={viewAnchorElement} />
         </>
       )}
       <AutoLinkPlugin matchers={autoLinkMatchers} />
-      <LocalDocumentPlugin documentId="first" prefix={"@lexiflow"} />
+      <LocalDocumentPlugin documentId="second" prefix={"@lexiflow"} />
       <HistoryPlugin externalHistoryState={historyState} />
       <AutoFocusPlugin defaultSelection="rootStart" />
       <ListPlugin />
       <LinkPlugin />
       <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
       <CodeHighlightPlugin />
+      <ComponentPickerMenuPlugin />
     </>
   );
 };

@@ -217,12 +217,13 @@ function TextFormatFloatingToolbar({
     {},
   );
   return (
-    <Toolbar.Root
-      ref={popupCharStylesEditorRef}
-      className={`floating-text-format-popup flex items-center bg-white px-1 py-1 gap-1 absolute
-       z-10 opacity-0 shadow-md rounded-md transition-opacity will-change-transform bg-slate-200`}>
+    <div
+      className={"editor-floating-toolbar absolute top-0 left-0 flex items-center opacity-0"}
+      ref={popupCharStylesEditorRef}>
       {editor.isEditable() && !editor.isComposing() && (
-        <>
+        <Toolbar.Root
+          className={`floating-text-format-popup flex items-center bg-white px-1 py-1 gap-1
+       z-10 shadow-md rounded-md transition-opacity will-change-transform bg-slate-200`}>
           <Toolbar.ToggleGroup
             onValueChange={handleChangeFormattingState}
             value={textFormattingStates}
@@ -282,9 +283,9 @@ function TextFormatFloatingToolbar({
             aria-label="Insert link">
             <BsLink className="w-6 h-6" />
           </Toolbar.Button>
-        </>
+        </Toolbar.Root>
       )}
-    </Toolbar.Root>
+    </div>
   );
 }
 

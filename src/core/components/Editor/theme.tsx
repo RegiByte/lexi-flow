@@ -17,15 +17,18 @@ export interface EditorTheme extends EditorThemeClasses {
   toolbar?: {
     container?: string;
   };
+  floatingToolbar?: {
+    container?: string;
+  }
 }
 
 export const editorTheme: EditorTheme = {
   container: {
-    editor: "flex flex-col w-full h-full overflow-hidden border border-black p-2",
+    editor: "flex flex-col w-full h-full overflow-visible border border-black p-2",
     shell: "flex flex-col flex-1 border border-sky-300 p-2",
-	  scroller: `flex flex-col flex-1 overflow-hidden border border-purple-500`,
-    view: "max-h-full flex-1 overflow-auto max-h-[200px] flex flex-col border border-amber-300 pl-4 pr-2 py-2 relative",
-    input: "resize-none outline-none caret-black px-2 py-1 border border-green-300",
+	  scroller: `flex flex-col flex-1 overflow-visible border border-purple-500`,
+    view: "max-h-full flex-1 overflow-visible flex flex-col border border-amber-300 pl-4 pr-2 py-2 relative",
+    input: "resize-none outline-none caret-black px-2 py-1 border border-green-300 min-h-[150px]",
   },
   placeholder: {
     container: "overflow-hidden text-md select-none pointer-events-none",
